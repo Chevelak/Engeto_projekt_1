@@ -40,111 +40,116 @@ import re
 from collections import Counter
 
 #oddělovníky
-lines = "_" * 35
+lines = "_" * 40
 
 #pozdrav
-welcome = "Welcome in the text analyzer!"
+welcome = "Welcome in the text analyzer!".center(40)
 print(welcome)
-duble_lines = "=" * len(welcome)
-print(duble_lines)
+print("=" * len(welcome))
 print("\n")
 
-#přihlášení
-user_a = dict(name_a="bob", pass_a="123")
-user_b = dict(name_b="ann", pass_b="pass123")
-user_c = dict(name_c="mike", pass_c="password123")
-user_d = dict(name_d="liz", pass_d="pass123")
+#uživatelé
+users = {
+    "user_a": {"name": 'bob', "pass": '123'},
+    "user_b": {"name": 'ann', "pass": 'pass123'},
+    "user_c": {"name": 'mike', "pass": 'password123'},
+    "user_d": {"name": 'liz', "pass": 'pass123'}
+}
 
-print("Insert your login details:")
-insert_name = input("Insert your username:")
-insert_pass = input("Insert your password:")
+print("Insert your login details:".center(40))
+insert_name = input("Insert your username: ")
+
 
 #kontrola přihlášení
+user_found = False
 valid_login = False
 
-if insert_name == user_a["name_a"]:
-    if insert_pass == user_a["pass_a"]:
-        print(f"Welcome {user_a["name_a"]} in the text analyzer!")
-        valid_login = True
-    else:
-        print("Password is not correct")
+for user in users.values():
+    if insert_name == user["name"]:
+        user_found = True
+
+        for attempt in range(3):
+            insert_pass = input(f"Insert your password (Attempt {attempt + 1}/3): ")
+            if insert_pass == user["pass"]:
+                print(f"Welcome {user['name']} in the text analyzer!".center(40))
+                valid_login = True
+                break
+            else:
+                print("Password is not correct.".center(40))
+
+        if not valid_login:
+            print("All three attemps were used. Access denied!".center(40))
+        break
         
-elif insert_name == user_b["name_b"]:
-    if insert_pass == user_b["pass_b"]:
-        print(f"Welcome {user_b["name_b"]} in the text analyzer!")
-        valid_login = True
-    else:
-        print("Password is not correct")
-        
-elif insert_name == user_c["name_c"]:
-    if insert_pass == user_c["pass_c"]:
-        print(f"Welcome {user_c["name_c"]} in the text analyzer!")
-        valid_login = True
-    else:
-        print("Password is not correct")
-        
-elif insert_name == user_d["name_d"]:
-    if insert_pass == user_d["pass_d"]:
-        pozdrav_d = print(f"Welcome {user_d["name_d"]} in the text analyzer!")
-        valid_login = True
-    else:
-        print("Password is not correct")
-        
-else:
-    print("Not a registered user!")
+if not user_found:
+    print("Not a registered user.".center(40))
 
 if not valid_login:
-    sys.exit(1)   
+    sys.exit(1)
+ 
 
 print(lines)
 print("\n")
 
-#výběr textu
-print(f"{insert_name} choose from three texts:")
-numer = int(input("Enter a number from 1 to 3:"))
-num_text = numer - 1
+#výběr textu a podmínky
+print(f"{insert_name} choose from three texts:".center(40))
+
+while True:
+    try:
+        number = int(input("Enter a number from 1 to 3:"))
+
+        if 1 <= number <= 3:
+            num_text = number - 1
+            print(f"Text {number} was choose!".center(40))
+            break       
+        else:
+            print("Wrong input!".center(40))
+
+    except ValueError:
+        print("Invalid input! Please enter a whole number.".center(40))
+
 print(lines)
 print("\n")
 
 
-#Analýza textu
+#analýza textu
 
-    #počet slov
-words_split = TEXTS[num_text].split()
-num_words = print(f"Number of words = {len(words_split)}")
+words_split = re.findall(r'\b\w+\b', TEXTS[num_text])
 
-    #počet slov s velkým a malým začátečním písmenem a slov s velkými písmeny
-upper_words = 0
-lower_words = 0
-UP_words = 0
+    # inicalizace počítání
+num_words = len(words_split)
+title_words = 0      
+UP_words = 0         
+lower_words = 0      
+num_string = 0       
+sum_numbers = 0      
 
 for word in words_split:
+    if word.isdigit():
+        num_string += 1
+        sum_numbers += int(word)
+
     if word.isupper() and len(word) > 1:
         UP_words += 1
-    elif word[0].isupper() and word[1:].islower():
-        upper_words += 1
+   
+    elif word.istitle():
+        title_words += 1
+
     elif word.islower():
         lower_words += 1
 
-print(f"Uppercase words = {UP_words}")
-print(f"Titlecase words = {upper_words}")
-print(f"Lowercase words = {lower_words}")
-
-    #počet číselných stringu v textu
-n = re.findall(r"\d+", TEXTS[num_text])
-n_num = len(n)
-print(f"Numeric strings = {n_num}")
-
-    #součet čísel v textu
-all_n = sum(map(int, n))
-print(f"Sum of all numbers = {all_n}")
-
+    # výpis výsledků
+print(f"Number of words    = {num_words}")
+print(f"Titlecase words    = {title_words}")
+print(f"Uppercase words    = {UP_words}")    
+print(f"Lowercase words    = {lower_words}")  
+print(f"Numeric strings    = {num_string}")
+print(f"Sum of all numbers = {sum_numbers}")
 
 #Graf
 
     # počítadlo délky slov
-words = re.findall(r'\b\w+\b', TEXTS[num_text])
-lengths = [len(word) for word in words]
+lengths = [len(word) for word in words_split]
 counts = Counter(lengths)
 
     # pojmenovani sloupců grafu
